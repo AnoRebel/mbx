@@ -1,35 +1,41 @@
-const path = require("path");
 const { PORT, PINO_CONFIG } = require("./utils");
-const fastify = require("fastify")({
-  logger: PINO_CONFIG,
-});
+const fastify = require("fastify")({ logger: PINO_CONFIG });
+const FastifyVite = require("fastify-vite");
+const renderer = require("fastify-vite-vue");
+const path = require("path");
 
-fastify.decorate("app_root", path.resolve(__dirname));
-// fastify.addHook("onRequest", async (request, reply) => {
-// try {
-// await request.jwtVerify()
-// } catch (err) {
-// reply.send(err)
-// }
-// })
-// fastify.setNotFoundHandler({
-// preHandler: fastify.rateLimit()
-// }, function (request, reply) {
-// reply.code(404).send({ hello: 'world' })
-// })
+const dev = process.env.NODE_ENV === "development";
 
-fastify.register(require("./core/plugins"));
-fastify.register(require("./core"));
-
-const start = async () => {
-  try {
-    await fastify.listen(PORT);
-    // console.log(fastify.routes);
-    // console.log(`server listening on ${fastify.server.address().port}`);
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
+const main = async () => {
+  await fastify.register(FastifyVite, {
+    api: true,
+    root: __dirname,
+    renderer,
+    vite: {
+      build: {
+        outDir: path.resolve(__dirname, "api"),
+        minify: !dev,
+      },
+    },
+  });
+  await fastify.decorate("app_root", path.resolve(__dirname));
+  await fastify.register(require("./core/plugins"));
+  await fastify.register(require("./core"));
+  await fastify.vite.commands();
+  await fastify.vite.ready();
+  return fastify;
 };
 
-start();
+if (require.main === module) {
+  main().then(fastify => {
+    fastify.listen(PORT, err => {
+      if (err) {
+        fastify.log.error(err);
+        process.exit(1);
+      }
+      console.log(fastify.app_root, fastify.config);
+    });
+  });
+}
+
+module.exports = main;

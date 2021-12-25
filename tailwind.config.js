@@ -1,5 +1,5 @@
 module.exports = {
-  content: ["./views/**/*.{njk,js}"],
+  content: ["./index.html", "./views/**/*.{vue,js,ts,jsx,tsx}"],
   darkMode: "class",
   theme: {
     extend: {},

@@ -11,11 +11,8 @@ const ENV_OPTIONS = {
 };
 
 const plugins = (instance, options, done) => {
-  instance.register(require("fastify-env"), ENV_OPTIONS).ready(err => {
-    if (err) fastify.log.error(err);
-    // console.log("Config: ", instance.config);
-  });
   instance
+    .register(require("fastify-env"), ENV_OPTIONS)
     .register(require("fastify-cors"), instance => (req, callback) => {
       let corsOptions;
       const origin = req.headers.origin;
@@ -51,22 +48,10 @@ const plugins = (instance, options, done) => {
     })
     .register(require("fastify-jwt"), {
       secret: "mbx",
+    })
+    .register(require("fastify-static"), {
+      root: path.join(instance.app_root, "app"),
     });
-  instance.register(require("fastify-static"), {
-    root: [path.join(instance.app_root, "app"), path.join(instance.app_root, "views", "assets")],
-  });
-  instance.register(require("point-of-view"), {
-    engine: {
-      nunjucks: require("nunjucks"),
-    },
-    templates: path.join(instance.app_root, "views"),
-    autoescape: true,
-    options: {
-      onConfigure: env => {
-        // do whatever you want on nunjucks env
-      },
-    },
-  });
   done();
 };
 
