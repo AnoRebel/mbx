@@ -1,6 +1,7 @@
 const fp = require("fastify-plugin");
 const path = require("path");
 const qs = require("qs");
+const { Unauthorized } = require("http-errors");
 
 const { ENV_SCHEMA } = require("../utils");
 
@@ -10,9 +11,37 @@ const ENV_OPTIONS = {
   dotenv: true,
 };
 
+const API_KEYS = new Map();
+const getKeys = name => {
+  let keys = process.env.API_KEYS;
+  for (let [key, value] of Object.entries(keys)) {
+    API_KEYS.set(key, value);
+  }
+  return API_KEYS.get(name);
+};
+
+const authenticate = async (request, reply) => {
+  try {
+    await request.apiKeyVerify();
+  } catch (err) {
+    reply.send(err);
+  }
+};
+
 const plugins = (instance, options, done) => {
   instance
     .register(require("fastify-env"), ENV_OPTIONS)
+    // .register(require("fastify-api-key"), {
+      // getSecret: async (request, keyId, callback) => {
+        // const secret = getKeys(keyId);
+        // if (!secret) {
+          // return callback(Unauthorized("Unknown Client"));
+        // }
+        // // return secret;
+        // callback(null, secret);
+      // },
+    // })
+    // .decorate("authenticate", authenticate)
     .register(require("fastify-cors"), instance => (req, callback) => {
       let corsOptions;
       const origin = req.headers.origin;

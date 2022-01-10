@@ -51,6 +51,7 @@
     "fastify-swagger": "^4.13.0",
     "fastify-vite": "^3.0.0-alpha.2",
     "fastify-vite-vue": "^3.0.0-alpha.2",
+    "http-errors": "^2.0.0",
     "mitt": "^3.0.0",
     "qs": "^6.10.2"
   },
