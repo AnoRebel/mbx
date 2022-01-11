@@ -32,16 +32,16 @@ const plugins = (instance, options, done) => {
   instance
     .register(require("fastify-env"), ENV_OPTIONS)
     // .register(require("fastify-api-key"), {
-      // getSecret: async (request, keyId, callback) => {
-        // const secret = getKeys(keyId);
-        // if (!secret) {
-          // return callback(Unauthorized("Unknown Client"));
-        // }
-        // // return secret;
-        // callback(null, secret);
-      // },
+    // getSecret: async (request, keyId, callback) => {
+    // const secret = getKeys(keyId);
+    // if (!secret) {
+    // return callback(Unauthorized("Unknown Client"));
+    // }
+    // // return secret;
+    // callback(null, secret);
+    // },
     // })
-    // .decorate("authenticate", authenticate)
+    .decorate("authenticate", authenticate)
     .register(require("fastify-cors"), instance => (req, callback) => {
       let corsOptions;
       const origin = req.headers.origin;
@@ -71,6 +71,10 @@ const plugins = (instance, options, done) => {
         reply.code(406);
         return `We do not support the ${encoding} encoding.`;
       },
+    })
+    .register(require("fastify-walk"), {
+      path: instance.app_root,
+      watch: true,
     })
     .register(require("fastify-formbody"), {
       parser: str => qs.parse(str),

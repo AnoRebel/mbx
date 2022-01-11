@@ -1,5 +1,5 @@
 const { PORT, PINO_CONFIG } = require("./utils");
-const fastify = require("fastify")({ logger: PINO_CONFIG });
+const fastify = require("fastify")({ logger: PINO_CONFIG, ignoreTrailingSlash: true });
 const FastifyVite = require("fastify-vite");
 const renderer = require("fastify-vite-vue");
 const path = require("path");
@@ -21,8 +21,12 @@ const main = async () => {
   await fastify.decorate("app_root", path.resolve(__dirname));
   await fastify.register(require("./core/plugins"));
   await fastify.register(require("./core"));
+  fastify.walk.onFile("views/**/*.vue", {
+    found: () => fastify.vite.devServer.ws.send({ type: "custom", event: "store-update" }),
+    changed: path => fastify.vite.devServer.ws.send({ type: "custom", event: "store-update" }),
+  });
+  await fastify.walk.ready();
   await fastify.vite.commands();
-  await fastify.vite.ready();
   return fastify;
 };
 
@@ -33,7 +37,7 @@ if (require.main === module) {
         fastify.log.error(err);
         process.exit(1);
       }
-      console.log(fastify.app_root, fastify.config);
+      // console.log(fastify.app_root, fastify.config, fastify.controllers);
     });
   });
 }

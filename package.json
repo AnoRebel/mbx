@@ -22,6 +22,7 @@
     "concurrently": "^6.5.1",
     "cross-env": "^7.0.3",
     "eslint": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "nodemon": "^2.0.15",
     "pino-pretty": "^7.3.0",
     "postcss": "^8.4.5",
@@ -51,6 +52,7 @@
     "fastify-swagger": "^4.13.0",
     "fastify-vite": "^3.0.0-alpha.2",
     "fastify-vite-vue": "^3.0.0-alpha.2",
+    "fastify-walk": "^0.0.3",
     "http-errors": "^2.0.0",
     "mitt": "^3.0.0",
     "qs": "^6.10.2"
