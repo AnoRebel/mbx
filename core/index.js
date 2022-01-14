@@ -38,7 +38,7 @@ const getControllers = dir => {
       let controllerPath = path.resolve(dir, controller.name);
       let loadedControllerFile = loadModule(controllerPath);
       output.push(...Object.values(loadedControllerFile));
-      cobj.push({ name, controllers: Object(loadedControllerFile) });
+      cobj.push({ name, modules: Object(loadedControllerFile) });
       // cobj.push(Object(loadedControllerFile));
     }
   }
@@ -57,19 +57,17 @@ const core = (instance, options, next) => {
       next(new Error(`Mbx: error registering controller: ${message}`));
     }
   });
-  // console.log("Controllers: ", Object.entries(cobj[0])[0][1].name);
-  let ctlrs = [];
+  let ctrls = [];
   cobj.forEach(cbj => {
-    let tmp = Object.entries(cbj);
-    console.log("Tmp: ", cbj);
-    tmp.forEach(dt => {
-      // console.log(`${dt[0]} - ${dt[1].name} : ${dt[1]}`);
-      let nm = dt[1].name;
-      ctlrs.push(nm);
+    let tmp = Object.entries(cbj),
+      mdls = [];
+    Object.entries(tmp[1][1]).forEach(md => {
+      mdls.push({ name: md[1].name, action: md[1] });
     });
+    ctrls.push({ name: cbj.name, modules: mdls });
   });
-  instance.decorate("controllers", cobj);
-  // instance.decorate("controllers", ctlrs);
+  // instance.decorate("controllers", cobj);
+  instance.decorate("controllers", ctrls);
   next();
 };
 
